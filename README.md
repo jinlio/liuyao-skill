@@ -1,6 +1,6 @@
 # liuyao-skill
 
-基于周易原理的六爻占卜与解卦 skill，专为 [opencode](https://opencode.ai) / [Hermes Agent](https://github.com/anomalyco/hermes) 设计，也可用于其他支持 skill 机制的 AI 编码助手。
+基于周易原理的六爻占卜与解卦 skill，适用于 [OpenClaw](https://opencode.ai)、[Hermes Agent](https://github.com/anomalyco/hermes) 及其他支持 skill 机制的 AI 编码助手（目前仅在 Hermes Agent 上测试通过）。
 
 ## 功能
 
@@ -46,7 +46,7 @@ python3 scripts/qigua.py --method manual --input "1,2,3,0,1,2" --json
 
 ## 作为 Skill 使用
 
-将本项目目录放入 opencode 或 Hermes Agent 的 skill 配置路径，助手会在用户提及六爻、占卜、起卦、解卦、算卦、周易、易经、卦象、divination、hexagram 等关键词时自动激活。
+将本项目目录放入 AI 编码助手的 skill 配置路径，助手会在用户提及六爻、占卜、起卦、解卦、算卦、周易、易经、卦象、divination、hexagram 等关键词时自动激活。
 
 详见 `SKILL.md` 中的完整占卜流程与解卦规则。
 
