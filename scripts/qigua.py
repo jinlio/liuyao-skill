@@ -113,7 +113,7 @@ def divine_manual(inputs):
     yaos = []
     for i, v in enumerate(inputs):
         if v not in (0, 1, 2, 3):
-            raise ValueError(f"第{i+1}个输入 {v} 无效，必须是0-3")
+            raise ValueError(f"第{i + 1}个输入 {v} 无效，必须是0-3")
         yao_info = dict(YAO_TYPE_MAP[v])
         yao_info["position"] = i + 1
         yao_info["label"] = yao_label(i + 1, yao_info["yang"])
@@ -189,11 +189,11 @@ def build_result(gua_data, yaos):
 
 def print_visual(result):
     yaos = result["yao_details"]
-    print(f"\n{'='*40}")
+    print(f"\n{'=' * 40}")
     print(f"本卦：{result['ben_gua']['name']}（上{result['ben_gua']['upper']} 下{result['ben_gua']['lower']}）")
     if result["moving_yao"]:
         print(f"变卦：{result['bian_gua']['name']}（上{result['bian_gua']['upper']} 下{result['bian_gua']['lower']}）")
-    print(f"{'='*40}")
+    print(f"{'=' * 40}")
     print("卦象（自上而下显示）：")
     for y in reversed(yaos):
         marker = " ○动" if y["moving"] else ""
@@ -202,7 +202,7 @@ def print_visual(result):
         print(f"\n动爻：{'、'.join(result['moving_yao'])}")
     else:
         print("\n无动爻（静卦）")
-    print(f"{'='*40}\n")
+    print(f"{'=' * 40}\n")
 
 
 def main():
