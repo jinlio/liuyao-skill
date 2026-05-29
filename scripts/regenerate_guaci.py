@@ -71,6 +71,7 @@ GUACI_DATA = {
     "火水未济": "亨，小狐汔济，濡其尾，无攸利。",
 }
 
+
 def generate_guaci():
     lines = ["# 周易六十四卦卦辞全编", "", "本文件收录《周易》六十四卦全部卦辞，按卦序排列。", ""]
     for name, ci in GUACI_DATA.items():
@@ -79,12 +80,14 @@ def generate_guaci():
         lines.append("")
     return "\n".join(lines)
 
+
 def main():
     guaci_content = generate_guaci()
     output_path = OUTPUT_DIR / "guaci-full.md"
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(guaci_content)
     print(f"Written {output_path}")
+
 
 if __name__ == "__main__":
     main()

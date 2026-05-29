@@ -4,9 +4,8 @@ import random
 import re
 import unittest
 from io import StringIO
-from unittest.mock import patch
 from pathlib import Path
-
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("qigua", ROOT / "scripts" / "qigua.py")
@@ -19,6 +18,7 @@ def result_for(inputs):
 
 
 # -- Trigram mapping --
+
 
 class TrigramMappingTests(unittest.TestCase):
     """Verify trigram recognition for all 8 trigrams in both positions."""
@@ -61,6 +61,7 @@ class TrigramMappingTests(unittest.TestCase):
 
 
 # -- All 64 hexagrams lookup --
+
 
 class AllHexagramsTests(unittest.TestCase):
     """Verify all 64 hexagrams can be resolved from gua-data.json."""
@@ -113,6 +114,7 @@ class AllHexagramsTests(unittest.TestCase):
 
 # -- Moving yao scenarios --
 
+
 class MovingYaoTests(unittest.TestCase):
     """Test moving yao logic for 0, 1, 2, 3, 4, 5, 6 moving lines."""
 
@@ -162,6 +164,7 @@ class MovingYaoTests(unittest.TestCase):
 
 # -- Yao label --
 
+
 class YaoLabelTests(unittest.TestCase):
     """Test yao_label for all 6 positions with yin and yang."""
 
@@ -179,6 +182,7 @@ class YaoLabelTests(unittest.TestCase):
 
 
 # -- Coin method --
+
 
 class CoinMethodTests(unittest.TestCase):
     def test_coin_returns_six_lines(self):
@@ -209,6 +213,7 @@ class CoinMethodTests(unittest.TestCase):
 
 
 # -- Shicao method --
+
 
 class ShicaoMethodTests(unittest.TestCase):
     def test_shicao_generates_six_valid_lines(self):
@@ -250,6 +255,7 @@ class ShicaoMethodTests(unittest.TestCase):
 
 # -- Manual input --
 
+
 class ManualInputTests(unittest.TestCase):
     def test_manual_input_errors_are_catchable(self):
         with self.assertRaises(ValueError):
@@ -281,6 +287,7 @@ class ManualInputTests(unittest.TestCase):
 
 # -- Build result structure --
 
+
 class BuildResultTests(unittest.TestCase):
     def test_result_has_all_required_keys(self):
         result = result_for([1, 2, 1, 2, 1, 2])
@@ -310,10 +317,12 @@ class BuildResultTests(unittest.TestCase):
     def test_timestamp_is_iso_format(self):
         result = result_for([1, 1, 1, 1, 1, 1])
         from datetime import datetime
+
         datetime.fromisoformat(result["timestamp"])
 
 
 # -- Print visual --
+
 
 class PrintVisualTests(unittest.TestCase):
     def test_print_visual_outputs_hexagram_name(self):
@@ -339,6 +348,7 @@ class PrintVisualTests(unittest.TestCase):
 
 
 # -- Data integrity --
+
 
 class DataIntegrityTests(unittest.TestCase):
     @classmethod
@@ -376,31 +386,41 @@ class DataIntegrityTests(unittest.TestCase):
 
 # -- CLI main() --
 
+
 class CLITests(unittest.TestCase):
     """Test the main() CLI entry point."""
 
     def test_coin_method_json_output(self):
-        with patch("sys.argv", ["qigua.py", "--method", "coin", "--seed", "42", "--json"]):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                qigua.main()
-                output = mock_out.getvalue()
+        argv = ["qigua.py", "--method", "coin", "--seed", "42", "--json"]
+        with (
+            patch("sys.argv", argv),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            qigua.main()
+            output = mock_out.getvalue()
         data = json.loads(output)
         self.assertIn("ben_gua", data)
         self.assertIn("bian_gua", data)
 
     def test_shicao_method_json_output(self):
-        with patch("sys.argv", ["qigua.py", "--method", "shicao", "--seed", "42", "--json"]):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                qigua.main()
-                output = mock_out.getvalue()
+        argv = ["qigua.py", "--method", "shicao", "--seed", "42", "--json"]
+        with (
+            patch("sys.argv", argv),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            qigua.main()
+            output = mock_out.getvalue()
         data = json.loads(output)
         self.assertIn("ben_gua", data)
 
     def test_manual_method_json_output(self):
-        with patch("sys.argv", ["qigua.py", "--method", "manual", "--input", "1,2,3,0,1,2", "--json"]):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                qigua.main()
-                output = mock_out.getvalue()
+        argv = ["qigua.py", "--method", "manual", "--input", "1,2,3,0,1,2", "--json"]
+        with (
+            patch("sys.argv", argv),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            qigua.main()
+            output = mock_out.getvalue()
         data = json.loads(output)
         self.assertIn("ben_gua", data)
 
@@ -417,10 +437,13 @@ class CLITests(unittest.TestCase):
             self.assertEqual(ctx.exception.code, 1)
 
     def test_visual_output_includes_hexagram(self):
-        with patch("sys.argv", ["qigua.py", "--method", "coin", "--seed", "42"]):
-            with patch("sys.stdout", new_callable=StringIO) as mock_out:
-                qigua.main()
-                output = mock_out.getvalue()
+        argv = ["qigua.py", "--method", "coin", "--seed", "42"]
+        with (
+            patch("sys.argv", argv),
+            patch("sys.stdout", new_callable=StringIO) as mock_out,
+        ):
+            qigua.main()
+            output = mock_out.getvalue()
         self.assertIn("本卦", output)
         self.assertIn("卦象", output)
 
