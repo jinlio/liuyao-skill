@@ -1,6 +1,6 @@
 # liuyao-skill
 
-基于周易原理的六爻占卜与解卦 skill，适用于 [OpenClaw](https://opencode.ai)、[Hermes Agent](https://github.com/anomalyco/hermes) 及其他支持 skill 机制的 AI 编码助手（目前仅在 Hermes Agent 上测试通过）。
+基于周易原理的六爻占卜与解卦 skill，适用于 [Claude Code](https://claude.ai/code)、[Hermes Agent](https://github.com/anomalyco/hermes) 及其他支持 skill 机制的 AI 编码助手。
 
 ## 功能
 
@@ -25,10 +25,18 @@ python3 scripts/qigua.py --method manual --input "1,2,3,0,1,2" --json
 
 输出 JSON 包含本卦名、变卦名、各爻详情、动爻标签等。
 
+## 安装
+
+```bash
+pip install -e .
+```
+
 ## 项目结构
 
 ```
 ├── SKILL.md                 Skill 定义与占卜流程说明
+├── pyproject.toml           项目元数据与工具配置
+├── CONTRIBUTING.md          贡献指南
 ├── assets/
 │   └── gua-data.json        八卦与六十四卦结构化数据
 ├── references/
@@ -38,10 +46,9 @@ python3 scripts/qigua.py --method manual --input "1,2,3,0,1,2" --json
 │   └── jiegu-guide.md       解卦方法与注解指引
 ├── scripts/
 │   ├── qigua.py             起卦脚本（核心）
-│   └ regenerate_guaci.py   重新生成 guaci-full.md
-├── tests/
-│   └ test_qigua.py          单元测试
-└── .gitignore
+│   └── regenerate_guaci.py  重新生成 guaci-full.md
+└── tests/
+    └── test_qigua.py        单元测试
 ```
 
 ## 作为 Skill 使用
@@ -53,7 +60,7 @@ python3 scripts/qigua.py --method manual --input "1,2,3,0,1,2" --json
 ## 测试
 
 ```bash
-python3 -m unittest discover -s tests -v
+python3 -m pytest -v
 ```
 
 ## 蓍草法概率
