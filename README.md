@@ -29,6 +29,9 @@ python3 scripts/qigua.py --method manual --input "1,2,3,0,1,2" --json
 
 ```bash
 pip install -e .
+
+# 安装后可直接使用
+liuyao-qigua --method coin --json
 ```
 
 ## 项目结构
@@ -36,7 +39,6 @@ pip install -e .
 ```
 ├── SKILL.md                 Skill 定义与占卜流程说明
 ├── pyproject.toml           项目元数据与工具配置
-├── CONTRIBUTING.md          贡献指南
 ├── assets/
 │   └── gua-data.json        八卦与六十四卦结构化数据
 ├── references/

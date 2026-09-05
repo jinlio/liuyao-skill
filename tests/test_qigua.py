@@ -3,6 +3,7 @@ import json
 import random
 import re
 import unittest
+from datetime import datetime
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -316,9 +317,19 @@ class BuildResultTests(unittest.TestCase):
 
     def test_timestamp_is_iso_format(self):
         result = result_for([1, 1, 1, 1, 1, 1])
-        from datetime import datetime
-
         datetime.fromisoformat(result["timestamp"])
+
+    def test_timestamp_includes_timezone(self):
+        result = result_for([1, 1, 1, 1, 1, 1])
+        self.assertIsNotNone(datetime.fromisoformat(result["timestamp"]).tzinfo)
+
+    def test_invalid_shape_is_rejected(self):
+        with self.assertRaises(ValueError):
+            qigua.build_result(qigua.load_gua_data(), qigua.divine_manual([1] * 5))
+
+    def test_invalid_trigram_shape_is_rejected(self):
+        with self.assertRaises(ValueError):
+            qigua.get_trigram_key([])
 
 
 # -- Print visual --
@@ -379,6 +390,13 @@ class DataIntegrityTests(unittest.TestCase):
         self.assertIn("trigrams", data)
         self.assertIn("hexagrams", data)
 
+    def test_generated_guaci_matches_committed_reference(self):
+        import scripts.regenerate_guaci as regenerate_guaci
+
+        expected = regenerate_guaci.generate_guaci()
+        actual = (ROOT / "references/guaci-full.md").read_text(encoding="utf-8")
+        self.assertEqual(actual, expected)
+
     def test_trigram_display_covers_all_names(self):
         for name in self.gua_data["trigrams"]:
             self.assertIn(name, qigua.TRIGRAM_DISPLAY)
@@ -432,6 +450,12 @@ class CLITests(unittest.TestCase):
 
     def test_manual_bad_format_exits_with_error(self):
         with patch("sys.argv", ["qigua.py", "--method", "manual", "--input", "abc"]):
+            with self.assertRaises(SystemExit) as ctx:
+                qigua.main()
+            self.assertEqual(ctx.exception.code, 1)
+
+    def test_manual_wrong_count_exits_with_error(self):
+        with patch("sys.argv", ["qigua.py", "--method", "manual", "--input", "1,2"]):
             with self.assertRaises(SystemExit) as ctx:
                 qigua.main()
             self.assertEqual(ctx.exception.code, 1)

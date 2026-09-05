@@ -60,25 +60,27 @@ def yao_label(position, is_yang):
         return f"{yin_yang}{pos_names[position]}"
 
 
-def coin_back_count():
+def coin_back_count(rng=None):
     """Return the number of backs among three simulated coins."""
-    return sum(random.randint(0, 1) for _ in range(3))
+    rng = rng or random
+    return sum(rng.randint(0, 1) for _ in range(3))
 
 
-def shicao_change(stalks, change_index):
+def shicao_change(stalks, change_index, rng=None):
     # Model the classic yarrow-stalk line probabilities directly:
     # first change removes 5/9 with 3:1 odds, later changes remove 4/8 evenly.
+    rng = rng or random
     if change_index == 0:  # noqa: SIM108
-        removed = 5 if random.random() < 0.75 else 9
+        removed = 5 if rng.random() < 0.75 else 9
     else:
-        removed = 4 if random.random() < 0.5 else 8
+        removed = 4 if rng.random() < 0.5 else 8
     return stalks - removed
 
 
-def shicao_line_value():
+def shicao_line_value(rng=None):
     stalks = 49
     for change_index in range(3):
-        stalks = shicao_change(stalks, change_index)
+        stalks = shicao_change(stalks, change_index, rng)
     return stalks // 4
 
 
@@ -87,19 +89,26 @@ def yao_to_trigram_bit(yao_info):
 
 
 def get_trigram_key(yaos):
+    if len(yaos) != 3:
+        raise ValueError("每个卦必须包含3个爻")
+    if any(not isinstance(y.get("yang"), bool) for y in yaos):
+        raise ValueError("爻数据缺少有效的 yang 布尔值")
     bits = "".join(yao_to_trigram_bit(y) for y in yaos)
-    return TRIGRAM_NAMES.get(bits, "unknown")
+    return TRIGRAM_NAMES[bits]
 
 
 def get_hexagram_name(gua_data, upper_key, lower_key):
     lookup_key = f"{upper_key}_{lower_key}"
-    return gua_data["lookup"].get(lookup_key, "未知卦")
+    try:
+        return gua_data["lookup"][lookup_key]
+    except KeyError as exc:
+        raise ValueError(f"无法识别卦象：{lookup_key}") from exc
 
 
-def divine_coin():
+def divine_coin(rng=None):
     yaos = []
     for i in range(6):
-        backs = coin_back_count()
+        backs = coin_back_count(rng)
         yao_info = dict(YAO_TYPE_MAP[backs])
         yao_info["position"] = i + 1
         yao_info["label"] = yao_label(i + 1, yao_info["yang"])
@@ -121,11 +130,11 @@ def divine_manual(inputs):
     return yaos
 
 
-def divine_shicao():
+def divine_shicao(rng=None):
     value_to_input = {6: 0, 7: 1, 8: 2, 9: 3}
     yaos = []
     for i in range(6):
-        value = shicao_line_value()
+        value = shicao_line_value(rng)
         yao_info = dict(YAO_TYPE_MAP[value_to_input[value]])
         yao_info["position"] = i + 1
         yao_info["label"] = yao_label(i + 1, yao_info["yang"])
@@ -135,6 +144,14 @@ def divine_shicao():
 
 
 def build_result(gua_data, yaos):
+    if len(yaos) != 6:
+        raise ValueError("六爻卦必须包含6个爻")
+    positions = [y.get("position") for y in yaos]
+    if positions != list(range(1, 7)):
+        raise ValueError("爻位置必须按1到6排列")
+    if any(not isinstance(y.get("moving"), bool) for y in yaos):
+        raise ValueError("爻数据缺少有效的 moving 布尔值")
+
     lower_yaos = yaos[:3]
     upper_yaos = yaos[3:]
 
@@ -182,7 +199,7 @@ def build_result(gua_data, yaos):
             for y in yaos
         ],
         "moving_yao": moving_yao,
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
     return result
 
@@ -220,13 +237,12 @@ def main():
     parser.add_argument("--seed", type=int, default=None, help="设置随机种子，便于复现实验结果")
     args = parser.parse_args()
 
-    if args.seed is not None:
-        random.seed(args.seed)
+    rng = random.Random(args.seed) if args.seed is not None else random.SystemRandom()
 
     gua_data = load_gua_data()
 
     if args.method == "coin":
-        yaos = divine_coin()
+        yaos = divine_coin(rng)
     elif args.method == "manual":
         if not args.input:
             print("错误：手动模式需要 --input 参数（6个0-3的数字，逗号分隔）", file=sys.stderr)
@@ -242,7 +258,7 @@ def main():
             print(f"错误：{exc}", file=sys.stderr)
             sys.exit(1)
     elif args.method == "shicao":
-        yaos = divine_shicao()
+        yaos = divine_shicao(rng)
 
     result = build_result(gua_data, yaos)
 
